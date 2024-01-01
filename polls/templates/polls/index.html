@@ -1,0 +1,13 @@
+
+{% if latest_question_list %}
+ <a href="{%  url 'logout' %}" class="btn btn-primary">Logout</a>
+   <ul>
+       {%  for question in latest_question_list %}
+            <li> <a href="{% url 'polls:detail' question.id %}">{{ question.question_text }} </a></li>
+       {% endfor %}
+   </ul>
+
+   {% else %}
+       <p>No polls available.</p>
+       
+   {% endif %}
