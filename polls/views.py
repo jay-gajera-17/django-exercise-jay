@@ -9,6 +9,8 @@ from django.core.mail import send_mail
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from mysite.settings import EMAIL_HOST_USER
+from django.conf import settings
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -28,13 +30,13 @@ def vote(request, question_id):
     selected_choice = question.choice_set.get(pk=request.POST["choice"])
 
     if user.votes_count >= 3:
-        # send_mail(
-        #     'Thanks for Voting',
-        #     'Thanks for voting. You have voted on more than three questions.',
-        #     'from@example.com',
-        #     [user.email],
-        #     fail_silently=False,
-        # )
+        send_mail(
+            'Thanks for Voting',
+            'Thanks for voting. You have voted on more than three questions.',
+            'jay.g@auberginesolutions.com',
+            [user.email],
+            fail_silently=True,
+        )
         return HttpResponse("Thanks for voting. You have voted on more than three questions.")
 
     else:

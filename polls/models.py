@@ -19,7 +19,6 @@ class Choice(models.Model):
     votes = models.IntegerField(default=0)
 
     
-    
 
 class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=30)
