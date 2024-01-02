@@ -1,28 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Poll App</title>
+</head>
+<body>
 
-{% if user.is_authenticated %}
-    <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
-{% else %}
-    <a href="{% url 'login' %}" id="loginButton" class="btn btn-primary">Login</a>
-{% endif %}
+    <div class="container">
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" id="loginButton" class="btn btn-primary">Login</a>
+        {% endif %}
+    
+        <div class="poll-list">
+            {% if latest_question_list %}
+                <ol class="polls">
+                    {% for question in latest_question_list %}
+                        <li class="poll-item">
+                            <span class="poll-number">{{ forloop.counter }}</span>
+                            <a href="{% url 'polls:detail' question.id %}" class="poll-question">{{ question.question_text }}</a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p>No polls available.</p>
+            {% endif %}
+        </div>
+    </div>
 
-{% if latest_question_list %}
- {% comment %} <a href="{%  url 'logout' %}" class="btn btn-primary">Logout</a> {% endcomment %}
-   <ul>
-       {%  for question in latest_question_list %}
-            <li> <a href="{% url 'polls:detail' question.id %}">{{ question.question_text }} </a></li>
-       {% endfor %}
-   </ul>
-
-   {% else %}
-       <p>No polls available.</p>
-       
-   {% endif %}
-
-   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-   <script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
     $(document).ready(function() {
         // Automatically trigger a click on the login button
         $("#loginButton").click();
     });
-    </script>
+</script>
+<style>
+/* Add your custom styles here */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.poll-list {
+    margin-top: 20px;
+}
+
+.polls {
+    list-style-type: none;
+    padding: 0;
+}
+
+.poll-item {
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.poll-number {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.poll-question {
+    text-decoration: none;
+    color: #333;
+}
+
+.poll-question:hover {
+    color: #007bff;
+}
+
+
+</style>
+</body>
+</html>
