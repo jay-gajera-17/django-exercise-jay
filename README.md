@@ -9,6 +9,8 @@
 ![Screenshot from 2024-01-02 17-14-57](https://github.com/jay-gajera-17/django-exercise-jay/assets/154986537/e4ee025b-413b-4084-9498-2376242fd7b7)
 ![Screenshot from 2024-01-02 17-35-53](https://github.com/jay-gajera-17/django-exercise-jay/assets/154986537/5a34c5d2-7a50-4af4-91ea-0ba0a7838bc8)
 ![Screenshot from 2024-01-02 17-33-58](https://github.com/jay-gajera-17/django-exercise-jay/assets/154986537/4562b052-566a-48cf-9daf-068cd0cfa09d)
+![image](https://github.com/jay-gajera-17/django-exercise-jay/assets/154986537/f4ca6210-4412-4078-ba67-69c275a9f186)
+
 
 
 ## Auth
