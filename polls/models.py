@@ -3,6 +3,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
+#Question Model
+
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
@@ -12,14 +14,17 @@ class Question(models.Model):
 
     def was_published_recently(self):
         return self.pub_date>=timezone.now()-datetime.timedelta(days=1)
-
+    
+#Choice Model
+    
 class Choice(models.Model):
     question = models.ForeignKey(Question,on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
     votes = models.IntegerField(default=0)
 
     
-
+#User Model
+    
 class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
@@ -31,6 +36,8 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+ #Vote Model
+       
 class Vote(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='votes')
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -39,4 +46,3 @@ class Vote(models.Model):
 
     class Meta:
         unique_together = ('user', 'question')
-# Create your models here.

@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from mysite.settings import EMAIL_HOST_USER
 from django.conf import settings
-
+from django.utils.decorators import method_decorator
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -20,15 +20,18 @@ def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "polls/results.html", {"question": question})
 
+@login_required
 def vote(request, question_id):
     user = request.user
     question = get_object_or_404(Question, pk=question_id)
-    # selected_choice = question.choice_set.get(pk=request.POST["choice"])
+
+    # if same polls vote again by same user then ...
     if Vote.objects.filter(user=user, question=question).exists():
         return HttpResponse("You have already voted for this question.")
 
     selected_choice = question.choice_set.get(pk=request.POST["choice"])
-
+    
+    # if more than 3 polls vote then send mail
     if user.votes_count >= 3:
         send_mail(
             'Thanks for Voting',
@@ -49,21 +52,22 @@ def vote(request, question_id):
         
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
-login_required(login_url='login')
+# landing page after login
+
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
-    login_required(login_url='login')
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")[:5]
 
-login_required(login_url='login')
+#poll detail page 
+    
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
 
-login_required(login_url='login')
+@method_decorator(login_required, name='dispatch')
 class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
