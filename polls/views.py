@@ -4,56 +4,69 @@ from .models import Choice,Question
 from django.shortcuts import get_object_or_404, render , redirect
 from django.urls import reverse
 from django.views import generic
-
+from .models import CustomUser,Vote
+from django.core.mail import send_mail
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+@login_required(login_url='login')
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "polls/results.html", {"question": question})
 
-
 def vote(request, question_id):
+    user = request.user
     question = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = question.choice_set.get(pk=request.POST["choice"])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(
-            request,
-            "polls/detail.html",
-            {
-                "question": question,
-                "error_message": "You didn't select a choice.",
-            },
-        )
+    # selected_choice = question.choice_set.get(pk=request.POST["choice"])
+    if Vote.objects.filter(user=user, question=question).exists():
+        return HttpResponse("You have already voted for this question.")
+
+    selected_choice = question.choice_set.get(pk=request.POST["choice"])
+
+    if user.votes_count >= 3:
+        # send_mail(
+        #     'Thanks for Voting',
+        #     'Thanks for voting. You have voted on more than three questions.',
+        #     'from@example.com',
+        #     [user.email],
+        #     fail_silently=False,
+        # )
+        return HttpResponse("Thanks for voting. You have voted on more than three questions.")
+
     else:
-        selected_choice.votes += 1
+        
+        selected_choice.votes+=1
         selected_choice.save()
+        Vote.objects.create(user=user, question=question, choice=selected_choice)
+        user.votes_count+=1
+        user.save()
+        
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
-        return HttpResponseRedirect(reverse("polls:results",args=(question.id,)))
-
-
+login_required(login_url='login')
 class IndexView(generic.ListView):
     template_name = "polls/index.html"
     context_object_name = "latest_question_list"
-
+    login_required(login_url='login')
     def get_queryset(self):
         """Return the last five published questions."""
         return Question.objects.order_by("-pub_date")[:5]
 
-
+login_required(login_url='login')
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
 
-
+login_required(login_url='login')
 class ResultsView(generic.DetailView):
     model = Question
     template_name = "polls/results.html"
 
-def HomePage(request):
-    pass
+
 
 def SignupPage(request):
     if request.method=='POST':
@@ -61,13 +74,21 @@ def SignupPage(request):
         email=request.POST.get('email')
         pass1=request.POST.get('password1')
         pass2=request.POST.get('password2')
+        first_name = request.POST.get('first_name')
+        profile_picture = request.FILES.get('profile_picture')
 
         if pass1!=pass2:
             return HttpResponse("not same")
         else:
-            my_user=User.objects.create_user(uname,email,pass1)
-            my_user.save()
-            return redirect('login')
+             my_user = CustomUser.objects.create_user(
+                username=uname,
+                email=email,
+                password=pass1,
+                first_name=first_name,
+            )
+             my_user.profile_picture = profile_picture
+             my_user.save()
+             return redirect('login')
 
 
     return render(request,'signup.html')
@@ -75,8 +96,9 @@ def SignupPage(request):
 def LoginPage(request):
     if request.method=='POST':
         username=request.POST.get('username')
-        pass1=request.POST.get('pass')
-        user=authenticate(request,username=username,password=pass1)
+        password=request.POST.get('pass')
+        user=authenticate(request,username=username,password=password)
+        print(username,password)
         if user is not None:
             login(request,user)
             return redirect('/polls')
